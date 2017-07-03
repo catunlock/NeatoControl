@@ -10,16 +10,10 @@ import sys
 import copy
 
 
-# 175 pixels
-# 8,85 metros
-#mmPerPixel = 50.571428571
 mmPerPixel = 20
-
-
 # En milimetros
 punto_A = (2520 + (172 * mmPerPixel), 1350 + (140 * mmPerPixel))
-#punto_A = (2520 + (0 * mmPerPixel), 1350 + (0* mmPerPixel))
-start_mm = punto_A
+
 START = 3
 END = 4
 
@@ -114,6 +108,9 @@ def readPoseIntegration(ser):
     Lprev = L
     Rprev = R
     # print "Theta",theta
+
+
+
 
 
 def init_robot(ser):
