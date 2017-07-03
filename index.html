@@ -1,0 +1,117 @@
+<html>
+
+<head>
+	<title>NEATO VIEWER</title>
+	<meta http-equiv="refresh" content="2"> 
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+
+
+</head>
+
+<body bgcolor="black">
+	<center>
+		<canvas id="canvas" width="850" height="635">
+			Your browser does not support the canvas element.
+		</canvas>
+
+
+	</center>
+	<script type="text/javascript">
+		var canvas = document.getElementById("canvas");
+		var context = document.getElementById('canvas').getContext('2d');
+
+		var points = [];
+		var laserPoints = [];
+
+		// Determine where the user clicked, I believe I pulled this from elsewhere on StackOverflow a while ago.
+		function getCursorPosition(e) {
+			var mx, my;
+			if (e.pageX || e.pageY) {
+				mx = e.pageX;
+				my = e.pageY;
+			}
+			else {
+				mx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+				my = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+			}
+			mx -= canvas.offsetLeft;
+			my -= canvas.offsetTop;
+			return { x: mx, y: my };
+		}
+
+		// Once we have at least two points, draw a line between them.
+		function drawPath() {
+			context.beginPath();
+			context.strokeStyle="#FF0000";
+			for (var i = 0; i < points.length - 1; i++) {
+				context.moveTo(points[i]['x'], points[i]['y']);
+				context.lineTo(points[i + 1]['x'], points[i + 1]['y']);
+				context.stroke();
+			}
+			context.closePath();
+
+			context.strokeStyle = "#00FF00";
+			let radio = 3;
+
+			for (var i = 0; i < points.length - 1; i++) {
+				context.beginPath();
+				context.arc(points[i]['x'], points[i]['y'], radio, 0, 2 * Math.PI, true);
+				context.stroke();
+				context.closePath();
+			}
+		}
+
+		function drawLaserPoints() {
+			
+			context.strokeStyle = "#0000FF";
+			context.fillStyle = "#0000FF";
+			let radio = 3;
+
+			for (var i = 0; i < laserPoints.length - 1; i++) {
+				context.beginPath();
+				context.arc(laserPoints[i]['x'], laserPoints[i]['y'],  radio, 0 , 2 * Math.PI, true);
+				context.fill();
+				context.closePath();
+			}
+		}
+
+
+		function init() {
+			// Load up your image.  Don't attempt to draw it until we know it's been loaded.
+			var mountain = new Image();
+			mountain.src = 'plano_clase_m20jun2017_export5.png';  // Replace with actual image.
+
+			mountain.onload = function () {
+				context.drawImage(this, 0, 0);
+
+				$.getJSON('camino.json', function (data) {
+					$.each(data.path, function (i, f) {
+						points.push(f)
+					});
+
+					if (points.length > 1) {
+						drawPath();
+					}
+				});
+
+				$.getJSON('laser.json', function (data) {
+					$.each(data.laserPoints, function(i, f) {
+						laserPoints.push(f)
+					});
+
+					if (laserPoints.length > 1) {
+						drawLaserPoints();
+					}
+				});
+			}
+			
+		}
+
+		// Should check if document has finished loading first, but I'm too lazy, especially without JQuery.
+		jQuery(window).load(init());
+	</script>
+
+</body>
+
+</html>
